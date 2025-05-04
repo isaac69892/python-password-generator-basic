@@ -50,7 +50,10 @@ def on_button_clicked():
 generate_button = tk.Button(window, text="Generate Password",command=on_button_clicked)
 generate_button.pack()
 
-def gui_generate_password(website, login_id, include_uppercase, include_lowercase, include_special_char, include_numbers, password_length):
+def gui_generate_password(website, login_id,
+                          include_uppercase, include_lowercase,
+                          include_special_char, include_numbers,
+                          password_length):
     characters = ""
     if include_uppercase:
         characters += string.ascii_uppercase
@@ -61,10 +64,26 @@ def gui_generate_password(website, login_id, include_uppercase, include_lowercas
     if include_numbers:
         characters += string.digits
 
-    password = ''.join(random.choice(characters) for i in range(password_length))
-    with open("passwords.txt", "a") as file:
-        file.write(f"Website: {website}, Login ID: {login_id}, Password: {password}")
+    if not characters:
+        messagebox.showerror("Error", "Please select at least one character type.")
+        return
 
-    messagebox.showinfo("Generate Password", f"Your password:  {password}")
+    try:
+        password_length = int(password_length)
+    except ValueError:
+        messagebox.showerror("Error", "Password length must be a number.")
+        return
+
+    password = ''.join(random.choice(characters) for _ in range(password_length))
+
+    # Write to file using .format() instead of f-string
+    with open("passwords.txt", "a") as file:
+        file.write(
+            "Website: {site}, Login ID: {login}, Password: {pwd}\n"
+            .format(site=website, login=login_id, pwd=password)
+        )
+
+    messagebox.showinfo("Generated Password", f"Your password: {password}")
+
 
 window.mainloop()
